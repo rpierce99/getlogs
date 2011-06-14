@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, GetLogsActivity!</string>
+    <string name="app_name">GetLogs</string>
+    <string name="appTitle">Get Logs!</string>
+    <string name="dmesgText">Kernel</string>
+    <string name="logcatText">System</string>
+    <string name="radioText">Radio</string>
+    <string name="maskText">Mask Strings:</string>
+    <string name="addButtonText">Add</string>
+    <string name="uploadText">PasteBin!</string>
+    <string name="logsToUploadText">Logs To Upload:</string>
+    <string name="LINE_SEPERATOR">\n</string>
+    <string name="LIST_SEPERATOR">!!@!!</string>
+</resources>
