@@ -48,6 +48,7 @@ public class GetLogsActivity extends Activity implements Runnable {
 	private ArrayAdapter<String> maskAdapter;
 	private ProgressDialog dlg;
 	private String result_string;
+	private Boolean upload;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,6 +60,10 @@ public class GetLogsActivity extends Activity implements Runnable {
         list.setAdapter(maskAdapter);
         
         SharedPreferences settings = getSharedPreferences(getString(R.string.app_name), 0);
+        String lastResult = settings.getString("lastResult", "");
+		TextView text = (TextView)findViewById(R.id.resultText);
+		text.setText(lastResult);
+		
         String masks = settings.getString("maskList", "");
         String[] arrMasks = masks.split(getString(R.string.LIST_SEPERATOR));
         for (String mask : arrMasks)
@@ -103,39 +108,21 @@ public class GetLogsActivity extends Activity implements Runnable {
 
         });
         
+        Button fileButton = (Button)findViewById(R.id.fileButton);
+        fileButton.setOnClickListener(new OnClickListener() {
+        	public void onClick(View v) {
+        		saveSettings();
+        		upload = false;
+        		kickOffRunnable();
+        	}
+        });
+        
         Button uploadButton = (Button)findViewById(R.id.uploadButton);
         uploadButton.setOnClickListener(new OnClickListener() {
         	public void onClick(View v) {
-        		try
-        		{
-        			StringBuilder list = new StringBuilder();
-            		for (String strMask : maskList)
-            		{
-            			list.append(strMask);
-            			list.append(getString(R.string.LIST_SEPERATOR));
-            		}
-            		
-            		String strList = list.toString();
-            		if (strList.length() > 0)
-            		{
-            			strList = strList.substring(0, strList.length() - getString(R.string.LIST_SEPERATOR).length());
-            		
-            		}
-            		
-        			SharedPreferences settings = getSharedPreferences(getString(R.string.app_name), 0);
-	                SharedPreferences.Editor editor = settings.edit();
-	                editor.putString("maskList", strList);
-	                editor.commit();
-            		
-        		}
-        		catch(Exception ex)
-        		{
-        			// couldn't save settings, meh.
-        		}
-        		
-        		dlg = ProgressDialog.show(GetLogsActivity.this, "", "Gathering and uploading logs...");
-        		Thread thread = new Thread(GetLogsActivity.this);
-        		thread.start();       		
+        		saveSettings();
+        		upload = true;
+        		kickOffRunnable();       		
         	}
         });
         
@@ -157,6 +144,11 @@ public class GetLogsActivity extends Activity implements Runnable {
     		
 			TextView text = (TextView)findViewById(R.id.resultText);
 			text.setText(result_string);
+			
+			SharedPreferences settings = getSharedPreferences(getString(R.string.app_name), 0);
+		    SharedPreferences.Editor editor = settings.edit();
+		    editor.putString("lastResult", result_string);
+		    editor.commit();
     	}
     };
     
@@ -220,6 +212,9 @@ public class GetLogsActivity extends Activity implements Runnable {
 				writer.flush();
 			}
 			
+			writer.writeBytes("echo ======================= RUNNING PROCESSES =================== >> " + fileName + "\n");
+			writer.writeBytes("ps >> " + fileName + "\n");
+			
 			writer.writeBytes("exit\n");
 			writer.flush();
 			p.waitFor();
@@ -251,29 +246,38 @@ public class GetLogsActivity extends Activity implements Runnable {
 			  pasteCode = pasteCode.replaceAll(possibleEmail, "###ACCT###");
 			}
 			
-			HttpClient webClient = new DefaultHttpClient();
-			HttpPost post = new HttpPost("http://pastebin.com/api/api_post.php");
-			List<NameValuePair> params = new ArrayList<NameValuePair>();
-			params.add(new BasicNameValuePair("api_option","paste"));
-			params.add(new BasicNameValuePair("api_dev_key", "4c7377b174b8d262dca80eb6662f92ae"));
-			params.add(new BasicNameValuePair("api_paste_code", pasteCode));
-			params.add(new BasicNameValuePair("api_paste_private", "1"));
-			post.setEntity(new UrlEncodedFormEntity(params));
-			HttpResponse resp = webClient.execute(post);
-			int status = resp.getStatusLine().getStatusCode();
-			if (status == HttpStatus.SC_OK)
+			if (upload)
 			{
-				InputStream respStream = resp.getEntity().getContent();
-				BufferedReader read = new BufferedReader(new InputStreamReader(respStream));
-				String url = read.readLine();
-				result_string = "Pasted To: " +url;
-				handler.sendEmptyMessage(0);
+				HttpClient webClient = new DefaultHttpClient();
+				HttpPost post = new HttpPost("http://pastebin.com/api/api_post.php");
+				List<NameValuePair> params = new ArrayList<NameValuePair>();
+				params.add(new BasicNameValuePair("api_option","paste"));
+				params.add(new BasicNameValuePair("api_dev_key", "4c7377b174b8d262dca80eb6662f92ae"));
+				params.add(new BasicNameValuePair("api_paste_code", pasteCode));
+				params.add(new BasicNameValuePair("api_paste_private", "1"));
+				post.setEntity(new UrlEncodedFormEntity(params));
+				HttpResponse resp = webClient.execute(post);
+				int status = resp.getStatusLine().getStatusCode();
+				if (status == HttpStatus.SC_OK)
+				{
+					InputStream respStream = resp.getEntity().getContent();
+					BufferedReader read = new BufferedReader(new InputStreamReader(respStream));
+					String url = read.readLine();
+					result_string = "Pasted To: " +url;
+					handler.sendEmptyMessage(0);
+				}
+				else
+				{
+					result_string = "Paste Failed: Error " + status;
+					handler.sendEmptyMessage(0);
+				}
 			}
 			else
 			{
-				result_string = "Paste Failed: Error " + status;
+				result_string = "File saved to: " + fileName;
 				handler.sendEmptyMessage(0);
 			}
+
 		}
 		catch(Exception ex)
 		{
@@ -281,5 +285,40 @@ public class GetLogsActivity extends Activity implements Runnable {
 			handler.sendEmptyMessage(0);
 		}
 		
+	}
+
+	private void saveSettings() {
+		try
+		{
+			StringBuilder list = new StringBuilder();
+			for (String strMask : maskList)
+			{
+				list.append(strMask);
+				list.append(getString(R.string.LIST_SEPERATOR));
+			}
+			
+			String strList = list.toString();
+			if (strList.length() > 0)
+			{
+				strList = strList.substring(0, strList.length() - getString(R.string.LIST_SEPERATOR).length());
+			
+			}
+			
+			SharedPreferences settings = getSharedPreferences(getString(R.string.app_name), 0);
+		    SharedPreferences.Editor editor = settings.edit();
+		    editor.putString("maskList", strList);
+		    editor.commit();
+			
+		}
+		catch(Exception ex)
+		{
+			// couldn't save settings, meh.
+		}
+	}
+
+	private void kickOffRunnable() {
+		dlg = ProgressDialog.show(GetLogsActivity.this, "", "Gathering and uploading logs...");
+		Thread thread = new Thread(GetLogsActivity.this);
+		thread.start();
 	}
 }

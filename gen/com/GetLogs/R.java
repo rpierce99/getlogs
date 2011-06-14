@@ -15,6 +15,7 @@ public final class R {
     }
     public static final class id {
         public static final int dmesgBox=0x7f050002;
+        public static final int fileButton=0x7f05000a;
         public static final int logcatBox=0x7f050003;
         public static final int logsTitle=0x7f050001;
         public static final int mainLayout=0x7f050000;
@@ -23,8 +24,8 @@ public final class R {
         public static final int maskList=0x7f050008;
         public static final int maskTitle=0x7f050005;
         public static final int radioBox=0x7f050004;
-        public static final int resultText=0x7f05000a;
-        public static final int tv1=0x7f05000b;
+        public static final int resultText=0x7f05000b;
+        public static final int tv1=0x7f05000c;
         public static final int uploadButton=0x7f050009;
     }
     public static final class layout {
@@ -38,6 +39,7 @@ public final class R {
         public static final int appTitle=0x7f040002;
         public static final int app_name=0x7f040001;
         public static final int dmesgText=0x7f040003;
+        public static final int fileText=0x7f04000c;
         public static final int hello=0x7f040000;
         public static final int logcatText=0x7f040004;
         public static final int logsToUploadText=0x7f040009;

@@ -9,7 +9,8 @@
 			<EditText android:layout_alignParentLeft="true" android:layout_toLeftOf="@+id/maskAddButton" android:layout_alignBaseline="@+id/maskAddText" android:layout_below="@+id/maskTitle" android:layout_height="wrap_content" android:id="@+id/maskAddText" android:layout_width="wrap_content"></EditText>
 			<ListView android:id="@+id/maskList" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_below="@+id/maskAddText"></ListView>
 			<Button android:layout_alignParentRight="true" android:layout_alignBaseline="@+id/maskAddText" android:layout_below="@+id/maskTitle" android:text="@string/addButtonText" android:layout_height="wrap_content" android:id="@+id/maskAddButton" android:layout_width="wrap_content"></Button>
-			<Button android:layout_below="@+id/maskList" android:text="@string/uploadText" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/uploadButton" android:layout_centerHorizontal="true"></Button>
+			<Button android:layout_below="@+id/maskList" android:text="@string/uploadText" android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/uploadButton"></Button>
+			<Button android:layout_toRightOf="@+id/uploadButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignTop="@+id/uploadButton" android:layout_alignBottom="@+id/uploadButton" android:id="@+id/fileButton" android:text="@string/fileText"></Button>
 			<TextView android:layout_alignParentLeft="true" android:layout_below="@+id/uploadButton" android:layout_height="wrap_content" android:text="" android:id="@+id/resultText" android:layout_width="wrap_content"></TextView>
 		</RelativeLayout>
 	</ScrollView>

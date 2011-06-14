@@ -12,4 +12,5 @@
     <string name="logsToUploadText">Logs To Upload:</string>
     <string name="LINE_SEPERATOR">\n</string>
     <string name="LIST_SEPERATOR">!!@!!</string>
+    <string name="fileText">Just a File</string>
 </resources>
