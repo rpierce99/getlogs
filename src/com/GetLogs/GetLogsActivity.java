@@ -235,15 +235,21 @@ public class GetLogsActivity extends Activity implements Runnable {
 			}
 			
 			String phn = getMyPhoneNumber();
-			pasteCode = pasteCode.replaceAll(phn, "###MDN##");
+			if (phn != null) {				
+				pasteCode = pasteCode.replaceAll(phn, "###MDN##");
+			}
 			
 			String devid = getDeviceID();
-			pasteCode = pasteCode.replaceAll(devid, "###IMEI/MEID/ESN###");
+			if (devid != null) {
+				pasteCode = pasteCode.replaceAll(devid, "###IMEI/MEID/ESN###");
+			}
 			
 			Account[] accounts = AccountManager.get(this).getAccounts();
 			for (Account account : accounts) {
 			  String possibleEmail = account.name;
-			  pasteCode = pasteCode.replaceAll(possibleEmail, "###ACCT###");
+			  if (possibleEmail != null){
+				  pasteCode = pasteCode.replaceAll(possibleEmail, "###ACCT###");
+			  }
 			}
 			
 			if (upload)
