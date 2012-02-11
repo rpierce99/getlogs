@@ -31,6 +31,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -231,24 +232,28 @@ public class GetLogsActivity extends Activity implements Runnable {
 			String pasteCode = postText.toString();
 			for(String word : maskList)
 			{
-				pasteCode = pasteCode.replaceAll(word, "###PRIVATE###");
+				Log.i("GetLogs", "Replacing word: " + word);
+				pasteCode = pasteCode.replace(word, "###PRIVATE###");
 			}
 			
 			String phn = getMyPhoneNumber();
-			if (phn != null) {				
-				pasteCode = pasteCode.replaceAll(phn, "###MDN##");
+			if (phn != null) {			
+				Log.i("GetLogs", "Replacing phone: " + phn);
+				pasteCode = pasteCode.replace(phn, "###MDN##");
 			}
 			
 			String devid = getDeviceID();
 			if (devid != null) {
-				pasteCode = pasteCode.replaceAll(devid, "###IMEI/MEID/ESN###");
+				Log.i("GetLogs", "Replacing device: " + devid);
+				pasteCode = pasteCode.replace(devid, "###IMEI/MEID/ESN###");
 			}
 			
 			Account[] accounts = AccountManager.get(this).getAccounts();
 			for (Account account : accounts) {
 			  String possibleEmail = account.name;
 			  if (possibleEmail != null){
-				  pasteCode = pasteCode.replaceAll(possibleEmail, "###ACCT###");
+				  Log.i("GetLogs", "Replacing account: " + possibleEmail);
+				  pasteCode = pasteCode.replace(possibleEmail, "###ACCT###");
 			  }
 			}
 			
