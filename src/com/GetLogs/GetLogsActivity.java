@@ -233,19 +233,19 @@ public class GetLogsActivity extends Activity implements Runnable {
 			for(String word : maskList)
 			{
 				Log.i("GetLogs", "Replacing word: " + word);
-				pasteCode = pasteCode.replace(word, "###PRIVATE###");
+				pasteCode = pasteCode.replaceAll(word, "###PRIVATE###");
 			}
 			
 			String phn = getMyPhoneNumber();
 			if (phn != null) {			
 				Log.i("GetLogs", "Replacing phone: " + phn);
-				pasteCode = pasteCode.replace(phn, "###MDN##");
+				pasteCode = pasteCode.replaceAll(phn.replaceAll("\\+", ""), "###MDN##");
 			}
 			
 			String devid = getDeviceID();
 			if (devid != null) {
 				Log.i("GetLogs", "Replacing device: " + devid);
-				pasteCode = pasteCode.replace(devid, "###IMEI/MEID/ESN###");
+				pasteCode = pasteCode.replaceAll(devid, "###IMEI/MEID/ESN###");
 			}
 			
 			Account[] accounts = AccountManager.get(this).getAccounts();
@@ -253,7 +253,7 @@ public class GetLogsActivity extends Activity implements Runnable {
 			  String possibleEmail = account.name;
 			  if (possibleEmail != null){
 				  Log.i("GetLogs", "Replacing account: " + possibleEmail);
-				  pasteCode = pasteCode.replace(possibleEmail, "###ACCT###");
+				  pasteCode = pasteCode.replaceAll(possibleEmail, "###ACCT###");
 			  }
 			}
 			
