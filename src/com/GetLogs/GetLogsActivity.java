@@ -16,9 +16,11 @@ import android.os.Message;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.lang.Process;
 
 import org.apache.http.HttpResponse;
@@ -55,9 +57,8 @@ public class GetLogsActivity extends Activity implements Runnable {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
         ListView list = (ListView)findViewById(R.id.maskList);
-    	maskAdapter = new ArrayAdapter<String>(this, R.layout.simple_list_item, maskList);
+        maskAdapter = new ArrayAdapter<String>(this, R.layout.simple_list_item, maskList);
         list.setAdapter(maskAdapter);
         
         SharedPreferences settings = getSharedPreferences(getString(R.string.app_name), 0);
@@ -169,6 +170,37 @@ public class GetLogsActivity extends Activity implements Runnable {
     	 return id;    	 
     }
     
+  private String filter(String pasteCode){
+    for(String word : maskList)
+    {
+      //Log.i("GetLogs", "Replacing word: " + word);
+      pasteCode = pasteCode.replaceAll(word, "###PRIVATE###");
+    }
+    
+    String phn = getMyPhoneNumber();
+    if (phn != null) {      
+      //Log.i("GetLogs", "Replacing phone: " + phn);
+      pasteCode = pasteCode.replaceAll(phn.replaceAll("\\+", ""), "###MDN##");
+    }
+    
+    String devid = getDeviceID();
+    if (devid != null && devid != "") {
+      //Log.i("GetLogs", "Replacing device: " + devid);
+      pasteCode = pasteCode.replaceAll(devid, "###IMEI/MEID/ESN###");
+    }
+    
+    Account[] accounts = AccountManager.get(this).getAccounts();
+    for (Account account : accounts) {
+      String possibleEmail = account.name;
+      if (possibleEmail != null){
+        //Log.i("GetLogs", "Replacing account: " + possibleEmail);
+        pasteCode = pasteCode.replaceAll(possibleEmail, "###ACCT###");
+      }
+    }
+    
+    return pasteCode;
+  }
+    
 	public void run() {
 		try
 		{
@@ -191,7 +223,7 @@ public class GetLogsActivity extends Activity implements Runnable {
 				
 				writer.writeBytes("echo ======================= SYSTEM LOG =================== >> " + fileName + "\n");
 				writer.flush();
-				writer.writeBytes("logcat -v time -d >> " + fileName + "\n");
+				writer.writeBytes("logcat -v time -d | tail -n 1000 >> " + fileName + "\n");
 				writer.flush();
 			}
 			
@@ -200,7 +232,7 @@ public class GetLogsActivity extends Activity implements Runnable {
 			{
 				writer.writeBytes("echo ======================= RADIO LOG =================== >> " + fileName + "\n");
 				writer.flush();
-				writer.writeBytes("logcat -v time -b radio -d >> " + fileName + "\n");
+				writer.writeBytes("logcat -v time -b radio -d | tail -n 1000 >> " + fileName + "\n");
 				writer.flush();
 			}
 			
@@ -209,7 +241,7 @@ public class GetLogsActivity extends Activity implements Runnable {
 			{
 				writer.writeBytes("echo ======================= KERNEL LOG =================== >> " + fileName + "\n");
 				
-				writer.writeBytes("dmesg >> " + fileName + "\n");
+				writer.writeBytes("dmesg | tail -n 1000 >> " + fileName + "\n");
 				writer.flush();
 			}
 			
@@ -225,37 +257,11 @@ public class GetLogsActivity extends Activity implements Runnable {
 			StringBuilder postText = new StringBuilder();
 			while((line = fileReader.readLine()) != null)
 			{
-				postText.append(line + getString(R.string.LINE_SEPERATOR));
+				postText.append(filter(line) + getString(R.string.LINE_SEPERATOR));
 			}
+			
 			fileReader.close();
 			
-			String pasteCode = postText.toString();
-			for(String word : maskList)
-			{
-				Log.i("GetLogs", "Replacing word: " + word);
-				pasteCode = pasteCode.replaceAll(word, "###PRIVATE###");
-			}
-			
-			String phn = getMyPhoneNumber();
-			if (phn != null) {			
-				Log.i("GetLogs", "Replacing phone: " + phn);
-				pasteCode = pasteCode.replaceAll(phn.replaceAll("\\+", ""), "###MDN##");
-			}
-			
-			String devid = getDeviceID();
-			if (devid != null) {
-				Log.i("GetLogs", "Replacing device: " + devid);
-				pasteCode = pasteCode.replaceAll(devid, "###IMEI/MEID/ESN###");
-			}
-			
-			Account[] accounts = AccountManager.get(this).getAccounts();
-			for (Account account : accounts) {
-			  String possibleEmail = account.name;
-			  if (possibleEmail != null){
-				  Log.i("GetLogs", "Replacing account: " + possibleEmail);
-				  pasteCode = pasteCode.replaceAll(possibleEmail, "###ACCT###");
-			  }
-			}
 			
 			if (upload)
 			{
@@ -264,7 +270,7 @@ public class GetLogsActivity extends Activity implements Runnable {
 				List<NameValuePair> params = new ArrayList<NameValuePair>();
 				params.add(new BasicNameValuePair("api_option","paste"));
 				params.add(new BasicNameValuePair("api_dev_key", "4c7377b174b8d262dca80eb6662f92ae"));
-				params.add(new BasicNameValuePair("api_paste_code", pasteCode));
+				params.add(new BasicNameValuePair("api_paste_code", postText.toString()));
 				params.add(new BasicNameValuePair("api_paste_private", "1"));
 				post.setEntity(new UrlEncodedFormEntity(params));
 				HttpResponse resp = webClient.execute(post);
@@ -285,6 +291,12 @@ public class GetLogsActivity extends Activity implements Runnable {
 			}
 			else
 			{
+	      FileOutputStream fOut = new FileOutputStream(fileName);
+	      OutputStreamWriter osw = new OutputStreamWriter(fOut); 
+        osw.write(postText.toString());
+        osw.flush();
+        osw.close();
+
 				result_string = "File saved to: " + fileName;
 				handler.sendEmptyMessage(0);
 			}
@@ -328,7 +340,7 @@ public class GetLogsActivity extends Activity implements Runnable {
 	}
 
 	private void kickOffRunnable() {
-		dlg = ProgressDialog.show(GetLogsActivity.this, "", "Gathering and uploading logs...");
+		dlg = ProgressDialog.show(GetLogsActivity.this, "", "Preparing logs...");
 		Thread thread = new Thread(GetLogsActivity.this);
 		thread.start();
 	}

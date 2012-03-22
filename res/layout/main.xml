@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-	<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"  android:fillViewport="true" android:layout_width="match_parent" android:layout_height="match_parent">
+	<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"  android:fillViewport="true" android:layout_width="match_parent" android:layout_height="match_parent">
 	    <RelativeLayout android:orientation="vertical"    android:id="@+id/mainLayout" android:layout_height="wrap_content" android:layout_width="wrap_content">
-	        <TextView android:layout_alignParentLeft="true" android:layout_alignParentTop="true" android:layout_height="wrap_content" android:textSize="12pt" android:text="@string/logsToUploadText" android:layout_width="wrap_content" android:id="@+id/logsTitle"></TextView>
+	        <com.google.ads.AdView android:id="@+id/adView"
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         ads:adUnitId="a14f6b54026d1ef"
+                         ads:adSize="BANNER"
+                         ads:testDevices="TEST_EMULATOR, TEST_DEVICE_ID"
+                         ads:loadAdOnCreate="true"
+                         android:layout_alignParentTop="true"/>
+	        <TextView android:layout_alignParentLeft="true" android:layout_height="wrap_content" android:textSize="12pt" android:text="@string/logsToUploadText" android:layout_width="wrap_content" android:id="@+id/logsTitle" android:layout_below="@+id/adView"></TextView>
 			<CheckBox android:layout_alignParentLeft="true" android:layout_alignBaseline="@+id/dmesgBox" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/dmesgText" android:id="@+id/dmesgBox" android:checked="true" android:layout_below="@+id/logsTitle"></CheckBox>
 			<CheckBox android:layout_toRightOf="@+id/dmesgBox" android:layout_alignBaseline="@+id/dmesgBox" android:layout_alignTop="@+id/dmesgBox" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/logcatText" android:checked="true" android:id="@+id/logcatBox"></CheckBox>
 			<CheckBox android:layout_toRightOf="@+id/logcatBox" android:layout_alignBaseline="@+id/dmesgBox" android:layout_alignTop="@+id/dmesgBox" android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="@string/radioText" android:checked="true" android:id="@+id/radioBox"></CheckBox>
