@@ -173,12 +173,14 @@ public class GetLogsActivity extends Activity implements Runnable {
   private String filter(String pasteCode){
     for(String word : maskList)
     {
-      //Log.i("GetLogs", "Replacing word: " + word);
-      pasteCode = pasteCode.replaceAll(word, "###PRIVATE###");
+      if (word != null && word != "") {
+        //Log.i("GetLogs", "Replacing word: " + word);
+        pasteCode = pasteCode.replaceAll(word, "###PRIVATE###");
+      }
     }
     
     String phn = getMyPhoneNumber();
-    if (phn != null) {      
+    if (phn != null && phn != "") {      
       //Log.i("GetLogs", "Replacing phone: " + phn);
       pasteCode = pasteCode.replaceAll(phn.replaceAll("\\+", ""), "###MDN##");
     }
@@ -192,7 +194,7 @@ public class GetLogsActivity extends Activity implements Runnable {
     Account[] accounts = AccountManager.get(this).getAccounts();
     for (Account account : accounts) {
       String possibleEmail = account.name;
-      if (possibleEmail != null){
+      if (possibleEmail != null && possibleEmail != ""){
         //Log.i("GetLogs", "Replacing account: " + possibleEmail);
         pasteCode = pasteCode.replaceAll(possibleEmail, "###ACCT###");
       }
