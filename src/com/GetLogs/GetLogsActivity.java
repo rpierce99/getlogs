@@ -180,13 +180,13 @@ public class GetLogsActivity extends Activity implements Runnable {
     }
     
     String phn = getMyPhoneNumber();
-    if (phn != null && phn != "") {      
+    if (phn != null && phn.length() > 2) {      
       //Log.i("GetLogs", "Replacing phone: " + phn);
       pasteCode = pasteCode.replaceAll(phn.replaceAll("\\+", ""), "###MDN##");
     }
     
     String devid = getDeviceID();
-    if (devid != null && devid != "") {
+    if (devid != null && devid.length() > 2) {
       //Log.i("GetLogs", "Replacing device: " + devid);
       pasteCode = pasteCode.replaceAll(devid, "###IMEI/MEID/ESN###");
     }
@@ -194,7 +194,7 @@ public class GetLogsActivity extends Activity implements Runnable {
     Account[] accounts = AccountManager.get(this).getAccounts();
     for (Account account : accounts) {
       String possibleEmail = account.name;
-      if (possibleEmail != null && possibleEmail != ""){
+      if (possibleEmail != null && possibleEmail.length() > 2){
         //Log.i("GetLogs", "Replacing account: " + possibleEmail);
         pasteCode = pasteCode.replaceAll(possibleEmail, "###ACCT###");
       }
