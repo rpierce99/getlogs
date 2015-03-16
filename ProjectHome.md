@@ -1,0 +1,1 @@
+Gets a ton of important logs from an android system and posts to pastebin.
